@@ -1,20 +1,20 @@
-# 🔔 Notification Service — Grupo 9
+#  Notification Service — Grupo 9
 ### Mini Marketplace Cloud · Entrega 2
 
 Servicio de notificaciones del ecosistema Mini Marketplace Cloud. Consume eventos de otros servicios vía **Supabase Realtime** y genera notificaciones persistentes para los usuarios.
 
 ---
 
-## 🚀 Mock público
+## Mock público
 
-| Entorno | URL |
-|---|---|
-| Producción (Render) | https://notification-service.onrender.com |
-| Local | http://localhost:8000 |
+ENTORNO Y URL 
+
+Producción (Render):  https://notification-service-i3bn.onrender.com
+Local: http://localhost:8000 
 
 ---
 
-## 📋 Endpoints disponibles
+## Endpoints disponibles
 
 | Método | Path | Descripción |
 |---|---|---|
@@ -25,7 +25,7 @@ Servicio de notificaciones del ecosistema Mini Marketplace Cloud. Consume evento
 
 ---
 
-## 🏗️ Stack técnico
+##  Stack técnico
 
 - **Runtime:** Node.js 20 + Express
 - **Base de datos:** Supabase PostgreSQL
@@ -36,7 +36,7 @@ Servicio de notificaciones del ecosistema Mini Marketplace Cloud. Consume evento
 
 ---
 
-## 📁 Estructura del proyecto
+##  Estructura del proyecto
 
 ```
 notification-service/
@@ -73,7 +73,7 @@ notification-service/
 
 ---
 
-## ⚙️ Variables de entorno
+##  Variables de entorno
 
 Copiar `.env.example` a `.env` y completar:
 
@@ -88,7 +88,7 @@ NODE_ENV=development
 
 ---
 
-## 🛠️ Cómo levantar localmente
+##  Cómo levantar localmente
 
 ```bash
 # Clonar el repositorio
@@ -110,7 +110,7 @@ npm run dev
 
 ---
 
-## 🧪 Pruebas rápidas con curl
+##  Pruebas rápidas con curl
 
 ```bash
 # Simular un evento OrderCreated
@@ -156,7 +156,7 @@ curl "http://localhost:8000/notifications?userId=USR-01" \
 
 ---
 
-## 💀 Dead Letter Queue (DLQ)
+##  Dead Letter Queue (DLQ)
 
 Cuando un evento no puede procesarse, G9 lo guarda en la tabla `dlq_events` y reintenta con backoff escalonado:
 
@@ -173,7 +173,7 @@ Reintento 3
 
 ---
 
-## 📊 Modelo de datos
+## Modelo de datos
 
 | Tabla | Propósito |
 |---|---|
@@ -184,7 +184,7 @@ Reintento 3
 
 ---
 
-## 🔗 Dependencias del ecosistema
+##  Dependencias del ecosistema
 
 | Grupo | Tipo | Estado |
 |---|---|---|
@@ -198,5 +198,5 @@ Reintento 3
 
 ---
 
-## 👥 Grupo 9 — Notificaciones
+##  Grupo 9 — Notificaciones
 Mini Marketplace Cloud · Junio 2026
