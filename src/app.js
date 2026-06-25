@@ -225,7 +225,6 @@ app.get('/', (req, res) => {
     service: 'G9 — Notification Service',
     version: '1.0.0',
     status: 'running',
-    docs: 'https://github.com/falonlon/notification-service',
     endpoints: [
       'GET  /notifications',
       'GET  /notifications/stats',
