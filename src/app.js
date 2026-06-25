@@ -219,6 +219,24 @@ app.post('/notifications/subscriptions', (req, res) => {
   });
 });
 
+
+app.get('/', (req, res) => {
+  res.json({
+    service: 'G9 — Notification Service',
+    version: '1.0.0',
+    status: 'running',
+    docs: 'https://github.com/falonlon/notification-service',
+    endpoints: [
+      'GET  /notifications',
+      'GET  /notifications/stats',
+      'POST /notifications/test',
+      'POST /notifications/subscriptions',
+      'PATCH /notifications/:id/read'
+    ]
+  });
+});
+
+
 // ── Arrancar servidor ────────────────────────────────
 app.listen(PORT, () => {
   console.log(`✅ Notification Service corriendo en http://localhost:${PORT}`);
