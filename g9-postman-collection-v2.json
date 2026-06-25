@@ -1,0 +1,368 @@
+{
+  "info": {
+    "name": "G9 — Notification Service v2",
+    "description": "Colección de pruebas para el Servicio de Notificaciones — Grupo 9, Mini Marketplace Cloud, Entrega 2. Incluye endpoint Web Push para integración con G1 Frontend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://notification-service-i3bn.onrender.com" },
+    { "key": "base_url_local", "value": "http://localhost:8000" },
+    { "key": "test_user_id", "value": "USR-01" },
+    { "key": "test_notification_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "📤 Testing — Simular eventos",
+      "item": [
+        {
+          "name": "01 OrderCreated — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('notificationId presente', () => { const r = pm.response.json(); pm.expect(r.notificationId).to.exist; pm.collectionVariables.set('test_notification_id', r.notificationId); });",
+            "pm.test('type es ORDER_CREATED', () => pm.expect(pm.response.json().type).to.eql('ORDER_CREATED'));",
+            "pm.test('read es false', () => pm.expect(pm.response.json().read).to.be.false);"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-order-001\",\n  \"eventType\": \"OrderCreated\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:00:00Z\",\n  \"producer\": \"order-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"totalAmount\": 49970,\n    \"currency\": \"CLP\"\n  }\n}" }
+          }
+        },
+        {
+          "name": "02 PaymentApproved — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('type es PAYMENT_APPROVED', () => pm.expect(pm.response.json().type).to.eql('PAYMENT_APPROVED'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-pay-approved-001\",\n  \"eventType\": \"PaymentApproved\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:05:00Z\",\n  \"producer\": \"payment-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"paymentId\": \"PAY-1001\",\n    \"amount\": 49970,\n    \"currency\": \"CLP\"\n  }\n}" }
+          }
+        },
+        {
+          "name": "03 PaymentRejected — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('type es PAYMENT_REJECTED', () => pm.expect(pm.response.json().type).to.eql('PAYMENT_REJECTED'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-pay-rejected-001\",\n  \"eventType\": \"PaymentRejected\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:07:00Z\",\n  \"producer\": \"payment-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"paymentId\": \"PAY-1002\",\n    \"reason\": \"INSUFFICIENT_FUNDS\",\n    \"amount\": 49970,\n    \"currency\": \"CLP\"\n  }\n}" }
+          }
+        },
+        {
+          "name": "04 StockRejected — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('type es STOCK_REJECTED', () => pm.expect(pm.response.json().type).to.eql('STOCK_REJECTED'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-stock-001\",\n  \"eventType\": \"StockRejected\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:10:00Z\",\n  \"producer\": \"inventory-service\",\n  \"correlationId\": \"corr-002\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1002\",\n    \"reason\": \"OUT_OF_STOCK\",\n    \"items\": [{ \"productId\": \"P-100\", \"requested\": 1, \"available\": 0 }]\n  }\n}" }
+          }
+        },
+        {
+          "name": "05 ShipmentDelivered — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('type es SHIPMENT_DELIVERED', () => pm.expect(pm.response.json().type).to.eql('SHIPMENT_DELIVERED'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-ship-001\",\n  \"eventType\": \"ShipmentDelivered\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T18:00:00Z\",\n  \"producer\": \"dispatch-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"shipmentId\": \"SHIP-1001\",\n    \"status\": \"DELIVERED\"\n  }\n}" }
+          }
+        },
+        {
+          "name": "06 Idempotencia — mismo eventId dos veces",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 409', () => pm.response.to.have.status(409));",
+            "pm.test('code es DUPLICATE_EVENT', () => pm.expect(pm.response.json().code).to.eql('DUPLICATE_EVENT'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-order-001\",\n  \"eventType\": \"OrderCreated\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:00:00Z\",\n  \"producer\": \"order-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"totalAmount\": 49970,\n    \"currency\": \"CLP\"\n  }\n}" }
+          }
+        },
+        {
+          "name": "07 Sin userId — debe retornar 422",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 422', () => pm.response.to.have.status(422));",
+            "pm.test('code es MISSING_USER_ID', () => pm.expect(pm.response.json().code).to.eql('MISSING_USER_ID'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-nouserid-001\",\n  \"eventType\": \"OrderCreated\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:00:00Z\",\n  \"producer\": \"order-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": {\n    \"orderId\": \"ORD-9999\",\n    \"totalAmount\": 9990\n  }\n}" }
+          }
+        },
+        {
+          "name": "08 eventType inválido — debe retornar 400",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "pm.test('code es INVALID_EVENT_TYPE', () => pm.expect(pm.response.json().code).to.eql('INVALID_EVENT_TYPE'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/notifications/test",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"test-badtype-001\",\n  \"eventType\": \"EventoInventado\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:00:00Z\",\n  \"producer\": \"order-service\",\n  \"correlationId\": \"corr-001\",\n  \"payload\": { \"userId\": \"USR-01\" }\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📥 GET /notifications",
+      "item": [
+        {
+          "name": "09 Listar por userId",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('data es array', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+            "pm.test('pagination presente', () => pm.expect(pm.response.json().pagination).to.exist);",
+            "pm.test('unreadCount presente', () => pm.expect(pm.response.json().unreadCount).to.exist);"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/notifications?userId={{test_user_id}}&page=1&size=10",
+              "query": [
+                { "key": "userId", "value": "{{test_user_id}}" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        },
+        {
+          "name": "10 Filtrar solo no leídas",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('todas son no leídas', () => { pm.response.json().data.forEach(n => pm.expect(n.read).to.be.false); });"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/notifications?userId={{test_user_id}}&read=false",
+              "query": [
+                { "key": "userId", "value": "{{test_user_id}}" },
+                { "key": "read", "value": "false" }
+              ]
+            },
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        },
+        {
+          "name": "11 Filtrar por eventType PaymentApproved",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/notifications?userId={{test_user_id}}&eventType=PaymentApproved",
+              "query": [
+                { "key": "userId", "value": "{{test_user_id}}" },
+                { "key": "eventType", "value": "PaymentApproved" }
+              ]
+            },
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 GET /notifications/stats",
+      "item": [
+        {
+          "name": "12 Stats globales",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('total presente', () => pm.expect(pm.response.json().total).to.be.a('number'));",
+            "pm.test('byEventType presente', () => pm.expect(pm.response.json().byEventType).to.exist);",
+            "pm.test('byProducer presente', () => pm.expect(pm.response.json().byProducer).to.exist);"
+          ]}}],
+          "request": {
+            "method": "GET", "url": "{{base_url}}/notifications/stats",
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Consumer", "value": "reporting-service" }
+            ]
+          }
+        },
+        {
+          "name": "13 Stats con rango de fechas",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('generatedAt presente', () => pm.expect(pm.response.json().generatedAt).to.exist);"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/notifications/stats?from=2026-06-01T00:00:00Z&to=2026-06-30T23:59:59Z",
+              "query": [
+                { "key": "from", "value": "2026-06-01T00:00:00Z" },
+                { "key": "to", "value": "2026-06-30T23:59:59Z" }
+              ]
+            },
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "✅ PATCH /notifications/:id/read",
+      "item": [
+        {
+          "name": "14 Marcar como leída — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('read es true', () => pm.expect(pm.response.json().read).to.be.true);"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/notifications/{{test_notification_id}}/read",
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        },
+        {
+          "name": "15 Idempotente — ya leída retorna 200",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200 (idempotente)', () => pm.response.to.have.status(200));",
+            "pm.test('read sigue siendo true', () => pm.expect(pm.response.json().read).to.be.true);"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/notifications/{{test_notification_id}}/read",
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        },
+        {
+          "name": "16 ID inexistente — debe retornar 404",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('code es NOTIFICATION_NOT_FOUND', () => pm.expect(pm.response.json().code).to.eql('NOTIFICATION_NOT_FOUND'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/notifications/NOTIF-INEXISTENTE-9999/read",
+            "header": [
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📱 Subscriptions — Web Push (G1 Frontend)",
+      "item": [
+        {
+          "name": "17 Registrar subscription Web Push — Happy path",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('subscriptionId presente', () => pm.expect(pm.response.json().subscriptionId).to.exist);",
+            "pm.test('platform es web', () => pm.expect(pm.response.json().platform).to.eql('web'));",
+            "pm.test('userId presente', () => pm.expect(pm.response.json().userId).to.eql('USR-01'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/notifications/subscriptions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Consumer", "value": "frontend-bff" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"USR-01\",\n  \"platform\": \"web\",\n  \"subscription\": {\n    \"endpoint\": \"https://fcm.googleapis.com/fcm/send/example-endpoint-123\",\n    \"keys\": {\n      \"p256dh\": \"BNcRdreALRFXTkOOUHK1EtK2wtwe60zfvOqyR4VLPbiu2a2TFSBMKSl1P3Q\",\n      \"auth\": \"tBHItJI5svbpez7KI4CCXg\"\n    }\n  }\n}" }
+          }
+        },
+        {
+          "name": "18 Sin userId — debe retornar 422",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 422', () => pm.response.to.have.status(422));",
+            "pm.test('code es MISSING_USER_ID', () => pm.expect(pm.response.json().code).to.eql('MISSING_USER_ID'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/notifications/subscriptions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"platform\": \"web\",\n  \"subscription\": {\n    \"endpoint\": \"https://fcm.googleapis.com/fcm/send/example\",\n    \"keys\": {\n      \"p256dh\": \"BNcRdreALRFXTkOO\",\n      \"auth\": \"tBHItJI5svbpez7K\"\n    }\n  }\n}" }
+          }
+        },
+        {
+          "name": "19 Sin subscription — debe retornar 400",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "pm.test('code es INVALID_REQUEST', () => pm.expect(pm.response.json().code).to.eql('INVALID_REQUEST'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/notifications/subscriptions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{$randomUUID}}" },
+              { "key": "X-Correlation-Id", "value": "{{$randomUUID}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"USR-01\",\n  \"platform\": \"web\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
