@@ -44,6 +44,15 @@ const newSubId   = () => `SUB-${String(subCounter++).padStart(4, '0')}`;
 app.post('/notifications/test', (req, res) => {
   const { eventId, eventType, producer, correlationId, payload } = req.body;
 
+  if (!eventId) {
+    return res.status(400).json({
+      timestamp: new Date().toISOString(), status: 400,
+      code: 'MISSING_EVENT_ID',
+      message: 'El campo eventId es obligatorio para garantizar idempotencia.',
+      correlationId: correlationId || null
+    });
+  }
+
   if (!eventType || !VALID_EVENT_TYPES.includes(eventType)) {
     return res.status(400).json({
       timestamp: new Date().toISOString(), status: 400,
@@ -222,15 +231,16 @@ app.post('/notifications/subscriptions', (req, res) => {
 
 app.get('/', (req, res) => {
   res.json({
-    service: 'G9 — Notification Service',
+    service: 'G9 - Notification Service',
     version: '1.0.0',
     status: 'running',
     endpoints: [
+      'GET  /',
+      'POST /notifications/test',
       'GET  /notifications',
       'GET  /notifications/stats',
-      'POST /notifications/test',
-      'POST /notifications/subscriptions',
-      'PATCH /notifications/:id/read'
+      'PATCH /notifications/:notificationId/read',
+      'POST /notifications/subscriptions'
     ]
   });
 });
@@ -242,6 +252,6 @@ app.listen(PORT, () => {
   console.log(`   POST  /notifications/test`);
   console.log(`   GET   /notifications`);
   console.log(`   GET   /notifications/stats`);
-  console.log(`   PATCH /notifications/:id/read`);
+  console.log(`   PATCH /notifications/:notificationId/read`);
   console.log(`   POST  /notifications/subscriptions`);
 });
