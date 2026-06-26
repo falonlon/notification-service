@@ -2,9 +2,20 @@
 
 ## Mini Marketplace Cloud - Entrega 2
 
-Servicio mock de notificaciones del Grupo 9 para la Fase 2 del proyecto Mini Marketplace Cloud. El objetivo de esta entrega es exponer una API funcional, publica y evaluable para que otros grupos puedan probar integracion antes de la implementacion final.
+Repositorio del Grupo 9 para el servicio de notificaciones del proyecto Mini Marketplace Cloud.
 
-En E2, los eventos se simulan mediante `POST /notifications/test`. El servicio guarda datos en memoria usando arrays y `Set`; no usa base de datos real ni workers reales.
+El estado actual corresponde a un mock funcional de Entrega 2 y a una base documental para Fase 3. No implementa servicios cloud nuevos, integraciones reales por eventos, base de datos real, Web Push real ni componentes asincronos productivos.
+
+En Fase 2 los eventos se simulan mediante `POST /notifications/test`. El servicio guarda datos temporalmente en memoria usando estructuras locales del proceso Node.js. Si el proceso se reinicia, los datos se pierden.
+
+La persistencia cloud queda para Fase 3. La integracion real por eventos queda para fases posteriores.
+
+## Estado actual del servicio
+
+- API Node.js/Express desplegada en Render.
+- Persistencia temporal en memoria.
+- Contrato REST disponible.
+- Mock listo para pruebas entre grupos.
 
 ## Estado de la entrega
 
@@ -21,39 +32,36 @@ En E2, los eventos se simulan mediante `POST /notifications/test`. El servicio g
 
 El mock permite:
 
-- Simular eventos de pedidos, pagos, inventario y despacho.
+- Simular eventos de pedidos, pagos, inventario y despacho por HTTP.
 - Generar notificaciones asociadas a un usuario.
 - Consultar notificaciones con filtros y paginacion.
 - Marcar notificaciones como leidas.
-- Consultar metricas basicas para G10.
-- Registrar una suscripcion Web Push simulada para G1.
-- Validar idempotencia basica por `eventId`.
+- Consultar metricas basicas del estado en memoria.
+- Registrar una suscripcion Web Push simulada para pruebas de contrato.
+- Validar idempotencia basica por `eventId` mientras el proceso siga activo.
 
-## Fuera de alcance en E2
+## Fuera de alcance en esta etapa
 
-No esta implementado en esta fase:
-
-- Supabase Realtime real.
-- PostgreSQL real.
+- Base de datos real.
 - DLQ real.
-- FCM real.
-- Envio real de Web Push.
+- Supabase Realtime.
+- Web Push real.
 - Autenticacion.
+- Integracion final entre servicios.
+- FCM real.
 - Workers reales.
 - Persistencia permanente.
-
-La persistencia real, Supabase Realtime, DLQ real y envio Web Push real quedan proyectados para fases posteriores.
 
 ## Endpoints disponibles
 
 | Metodo | Path | Descripcion | Consumidor o proposito |
 |---|---|---|---|
 | `GET` | `/` | Health check y resumen de endpoints | Verificacion general |
-| `POST` | `/notifications/test` | Simula la recepcion de un evento y crea una notificacion | Productores G5, G6, G7, G8 en E2 |
+| `POST` | `/notifications/test` | Simula la recepcion de un evento y crea una notificacion en memoria | Productores G5, G6, G7, G8 en E2 |
 | `GET` | `/notifications` | Lista notificaciones con filtros y paginacion | G1, G11 |
-| `GET` | `/notifications/stats` | Retorna metricas agregadas del mock | G10 |
-| `PATCH` | `/notifications/:notificationId/read` | Marca una notificacion como leida | G1, G11 |
-| `POST` | `/notifications/subscriptions` | Registra una suscripcion Web Push simulada | G1 |
+| `GET` | `/notifications/stats` | Retorna metricas agregadas calculadas desde memoria | G10 |
+| `PATCH` | `/notifications/:notificationId/read` | Marca una notificacion como leida en memoria | G1, G11 |
+| `POST` | `/notifications/subscriptions` | Registra una suscripcion Web Push simulada en memoria | G1 |
 
 ## Eventos simulados aceptados
 
@@ -68,7 +76,7 @@ La persistencia real, Supabase Realtime, DLQ real y envio Web Push real quedan p
 - `ShipmentDelivered`
 - `ShipmentFailed`
 
-## Contrato de evento esperado
+## Contrato de evento simulado
 
 ```json
 {
@@ -92,7 +100,7 @@ La persistencia real, Supabase Realtime, DLQ real y envio Web Push real quedan p
 - `eventId` es obligatorio.
 - `eventType` debe ser valido.
 - `payload.userId` es obligatorio.
-- Si `eventId` ya fue procesado, no se crea una notificacion duplicada.
+- Si `eventId` ya fue procesado en la instancia activa, no se crea una notificacion duplicada.
 - `size` de paginacion tiene maximo 50.
 
 ## Errores esperados
@@ -103,8 +111,8 @@ La persistencia real, Supabase Realtime, DLQ real y envio Web Push real quedan p
 | `400` | `MISSING_EVENT_ID` | Falta `eventId` |
 | `400` | `INVALID_REQUEST` | Request incompleto o invalido |
 | `422` | `MISSING_USER_ID` | Falta `payload.userId` o `userId` |
-| `409` | `DUPLICATE_EVENT` | `eventId` ya procesado |
-| `404` | `NOTIFICATION_NOT_FOUND` | No existe la notificacion solicitada |
+| `409` | `DUPLICATE_EVENT` | `eventId` ya procesado en memoria |
+| `404` | `NOTIFICATION_NOT_FOUND` | No existe la notificacion solicitada en memoria |
 
 Formato estandar:
 
@@ -196,7 +204,7 @@ Consultar stats:
 curl http://localhost:8000/notifications/stats
 ```
 
-Registrar subscription:
+Registrar subscription simulada:
 
 ```bash
 curl -X POST http://localhost:8000/notifications/subscriptions \
@@ -218,10 +226,10 @@ curl -X POST http://localhost:8000/notifications/subscriptions \
 
 | Grupo | Rol en E2 |
 |---|---|
-| G5 Pedidos | Productor de `OrderCreated` |
-| G6 Pagos | Productor de `PaymentPending`, `PaymentApproved`, `PaymentRejected` |
-| G7 Inventario | Productor de `StockRejected` |
-| G8 Despacho | Productor de eventos `Shipment*` |
+| G5 Pedidos | Productor simulado de `OrderCreated` |
+| G6 Pagos | Productor simulado de `PaymentPending`, `PaymentApproved`, `PaymentRejected` |
+| G7 Inventario | Productor simulado de `StockRejected` |
+| G8 Despacho | Productor simulado de eventos `Shipment*` |
 | G10 Reporteria | Consumidor de `GET /notifications/stats` |
 | G11 ChatBot | Consumidor parcial de `GET /notifications` y `PATCH /read` |
 | G1 Frontend | Consumidor de `GET /notifications`, `PATCH /read` y `POST /subscriptions` |
@@ -230,14 +238,12 @@ En Fase 2 la recepcion de eventos se simula mediante `POST /notifications/test`.
 
 ## Modelo de datos objetivo
 
-En E2 el mock usa memoria. Las siguientes tablas son el modelo objetivo para persistencia en F3/F4:
+En E2 el mock usa memoria. Las siguientes entidades son parte del modelo objetivo para persistencia en Fase 3 o fases posteriores, pero no existen actualmente en una base de datos:
 
 - `notifications`
 - `processed_events`
 - `dlq_events`
 - `push_subscriptions`
-
-Estas tablas no estan implementadas actualmente en base de datos.
 
 ## Deploy Render
 
