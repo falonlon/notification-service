@@ -1,0 +1,48 @@
+@baseUrl = http://localhost:8000
+
+### Health check
+GET {{baseUrl}}/
+
+### Crear evento OrderCreated
+POST {{baseUrl}}/notifications/test
+Content-Type: application/json
+
+{
+  "eventId": "EVT-001",
+  "eventType": "OrderCreated",
+  "version": "1.0",
+  "occurredAt": "2026-06-01T10:00:00Z",
+  "producer": "order-service",
+  "correlationId": "corr-001",
+  "payload": {
+    "userId": "USR-01",
+    "orderId": "ORD-1001",
+    "totalAmount": 49990,
+    "currency": "CLP"
+  }
+}
+
+### Listar notificaciones por usuario
+GET {{baseUrl}}/notifications?userId=USR-01&page=1&size=10
+
+### Consultar stats
+GET {{baseUrl}}/notifications/stats
+
+### Marcar como leida
+PATCH {{baseUrl}}/notifications/NOTIF-0001/read
+
+### Registrar subscription
+POST {{baseUrl}}/notifications/subscriptions
+Content-Type: application/json
+
+{
+  "userId": "USR-01",
+  "platform": "web",
+  "subscription": {
+    "endpoint": "https://push.example.test/subscription",
+    "keys": {
+      "p256dh": "demo-key",
+      "auth": "demo-auth"
+    }
+  }
+}

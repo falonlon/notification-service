@@ -1,0 +1,216 @@
+{
+  "info": {
+    "name": "Notification Service E2",
+    "description": "Coleccion Postman para el mock funcional E2 del Grupo 9.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://notification-service-i3bn.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "NOTIF-0001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/"
+      }
+    },
+    {
+      "name": "Crear OrderCreated",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-ORDER-001\",\n  \"eventType\": \"OrderCreated\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:00:00Z\",\n  \"producer\": \"order-service\",\n  \"correlationId\": \"corr-order-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"totalAmount\": 49990,\n    \"currency\": \"CLP\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Crear PaymentApproved",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-PAY-APPROVED-001\",\n  \"eventType\": \"PaymentApproved\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:05:00Z\",\n  \"producer\": \"payment-service\",\n  \"correlationId\": \"corr-payment-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"amount\": 49990,\n    \"currency\": \"CLP\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Crear PaymentRejected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-PAY-REJECTED-001\",\n  \"eventType\": \"PaymentRejected\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:10:00Z\",\n  \"producer\": \"payment-service\",\n  \"correlationId\": \"corr-payment-002\",\n  \"payload\": {\n    \"userId\": \"USR-02\",\n    \"orderId\": \"ORD-1002\",\n    \"reason\": \"Fondos insuficientes\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Crear StockRejected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-STOCK-REJECTED-001\",\n  \"eventType\": \"StockRejected\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:15:00Z\",\n  \"producer\": \"inventory-service\",\n  \"correlationId\": \"corr-stock-001\",\n  \"payload\": {\n    \"userId\": \"USR-03\",\n    \"orderId\": \"ORD-1003\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Crear ShipmentDelivered",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-SHIP-DELIVERED-001\",\n  \"eventType\": \"ShipmentDelivered\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:20:00Z\",\n  \"producer\": \"shipment-service\",\n  \"correlationId\": \"corr-shipment-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Listar por userId",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/notifications?userId=USR-01"
+      }
+    },
+    {
+      "name": "Listar paginado",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/notifications?page=1&size=10"
+      }
+    },
+    {
+      "name": "Filtrar read false",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/notifications?read=false"
+      }
+    },
+    {
+      "name": "Consultar stats",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/notifications/stats"
+      }
+    },
+    {
+      "name": "Marcar como leida",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/notifications/{{notificationId}}/read"
+      }
+    },
+    {
+      "name": "Probar evento duplicado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-ORDER-001\",\n  \"eventType\": \"OrderCreated\",\n  \"version\": \"1.0\",\n  \"occurredAt\": \"2026-06-01T10:00:00Z\",\n  \"producer\": \"order-service\",\n  \"correlationId\": \"corr-order-001\",\n  \"payload\": {\n    \"userId\": \"USR-01\",\n    \"orderId\": \"ORD-1001\",\n    \"totalAmount\": 49990,\n    \"currency\": \"CLP\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Probar evento invalido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-INVALID-001\",\n  \"eventType\": \"UnknownEvent\",\n  \"payload\": {\n    \"userId\": \"USR-01\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Probar falta de userId",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"EVT-NO-USER-001\",\n  \"eventType\": \"OrderCreated\",\n  \"payload\": {\n    \"orderId\": \"ORD-1004\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/test"
+      }
+    },
+    {
+      "name": "Registrar subscription",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"USR-01\",\n  \"platform\": \"web\",\n  \"subscription\": {\n    \"endpoint\": \"https://push.example.test/subscription\",\n    \"keys\": {\n      \"p256dh\": \"demo-key\",\n      \"auth\": \"demo-auth\"\n    }\n  }\n}"
+        },
+        "url": "{{baseUrl}}/notifications/subscriptions"
+      }
+    }
+  ]
+}
