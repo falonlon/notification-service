@@ -88,7 +88,7 @@ Objetivo: actualizar estado de lectura.
 Request:
 
 ```http
-PATCH /notifications/NOTIF-0001/read HTTP/1.1
+PATCH /notifications/NOTIF-1782787306600-pkrwzx/read HTTP/1.1
 Host: localhost:8000
 ```
 

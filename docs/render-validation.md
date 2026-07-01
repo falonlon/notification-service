@@ -2,15 +2,15 @@
 
 Repo:
 
-https://github.com/bntkpp/fishmarket
+https://github.com/falonlon/notification-service
 
 Branch:
 
-`feature/g9-notificaciones` o `main` si ya fue mergeado.
+`main`
 
 Root Directory:
 
-`services/notificaciones/notification-service`
+Raiz del repositorio.
 
 URL publica:
 
@@ -46,7 +46,7 @@ SUPABASE_SERVICE_KEY=
 
 ## Estado de validacion publica
 
-La validacion publica en Render queda pendiente hasta ejecutar redeploy desde el monorepo oficial con las variables Supabase configuradas. No se debe considerar validado el despliegue si sigue generando IDs secuenciales del servicio antiguo.
+La validacion publica en Render queda pendiente hasta ejecutar redeploy desde el repositorio standalone con las variables Supabase configuradas. No se debe considerar validado el despliegue si sigue generando IDs secuenciales del servicio antiguo.
 
 ## Checklist de redeploy
 
@@ -62,9 +62,9 @@ La validacion publica en Render queda pendiente hasta ejecutar redeploy desde el
 
 ## Checklist de configuracion Render
 
-* [ ] Repo configurado como `https://github.com/bntkpp/fishmarket`.
-* [ ] Branch configurada como `feature/g9-notificaciones` o `main` si ya fue mergeado.
-* [ ] Root Directory configurado como `services/notificaciones/notification-service`.
+* [ ] Repo configurado como `https://github.com/falonlon/notification-service`.
+* [ ] Branch configurada como `main`.
+* [ ] Root Directory configurado en blanco o como raiz del repositorio.
 * [ ] Build Command configurado como `npm install`.
 * [ ] Start Command configurado como `npm start`.
 * [ ] `SUPABASE_URL` configurada con URL base sin `/rest/v1/`.

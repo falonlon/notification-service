@@ -1,256 +1,184 @@
-# Notification Service - Grupo 9
+# Grupo 9 - Notificaciones
 
-## Mini Marketplace Cloud - Entrega 2
+Servicio mock/cloud de notificaciones del Grupo 9 migrado a repositorio standalone.
 
-Repositorio del Grupo 9 para el servicio de notificaciones del proyecto Mini Marketplace Cloud.
+Repositorio oficial:
 
-El estado actual corresponde a un mock funcional de Entrega 2 y a una base documental para Fase 3. No implementa servicios cloud nuevos, integraciones reales por eventos, base de datos real, Web Push real ni componentes asincronos productivos.
+`https://github.com/falonlon/notification-service`
 
-En Fase 2 los eventos se simulan mediante `POST /notifications/test`. El servicio guarda datos temporalmente en memoria usando estructuras locales del proceso Node.js. Si el proceso se reinicia, los datos se pierden.
+## Ubicacion
 
-La persistencia cloud queda para Fase 3. La integracion real por eventos queda para fases posteriores.
+Raiz del repositorio.
 
-## Estado actual del servicio
+## Estado actual
 
-- API Node.js/Express desplegada en Render.
-- Persistencia temporal en memoria.
-- Contrato REST disponible.
-- Mock listo para pruebas entre grupos.
+El servicio funciona como backend Node.js desplegado en Render y persiste datos en Supabase.
 
-## Estado de la entrega
+URL publica:
 
-| Campo | Valor |
-|---|---|
-| Fase | E2 - Mock entre grupos |
-| Tipo | Mock API funcional |
-| Persistencia | En memoria |
-| Deploy | Render |
-| URL publica | `https://notification-service-i3bn.onrender.com/` |
-| Repositorio | `https://github.com/falonlon/notification-service.git` |
+`https://notification-service-i3bn.onrender.com/`
 
-## Alcance de E2
+Supabase almacena `notifications`, `processed_events` y `push_subscriptions`. La DLQ real, Web Push real, workers reales e integracion con eventos reales por bus siguen fuera de alcance. `POST /notifications/test` se mantiene como endpoint de simulacion para integracion entre grupos.
 
-El mock permite:
+## Nota de stack
 
-- Simular eventos de pedidos, pagos, inventario y despacho por HTTP.
-- Generar notificaciones asociadas a un usuario.
-- Consultar notificaciones con filtros y paginacion.
-- Marcar notificaciones como leidas.
-- Consultar metricas basicas del estado en memoria.
-- Registrar una suscripcion Web Push simulada para pruebas de contrato.
-- Validar idempotencia basica por `eventId` mientras el proceso siga activo.
+Este servicio usa Node.js 20, JavaScript y Express 4.18.2.
 
-## Fuera de alcance en esta etapa
+Aunque el README raiz del monorepo define una estructura estandar Node.js + TypeScript para nuevos servicios, G9 mantiene esta implementacion JavaScript porque el mock ya se encuentra desplegado y funcionando en Render.
 
-- Base de datos real.
-- DLQ real.
-- Supabase Realtime.
-- Web Push real.
-- Autenticacion.
-- Integracion final entre servicios.
-- FCM real.
-- Workers reales.
-- Persistencia permanente.
+Esta decision es acotada al servicio de notificaciones y no cambia el contrato HTTP expuesto a los demas grupos.
 
-## Endpoints disponibles
+## Endpoints
 
-| Metodo | Path | Descripcion | Consumidor o proposito |
-|---|---|---|---|
-| `GET` | `/` | Health check y resumen de endpoints | Verificacion general |
-| `POST` | `/notifications/test` | Simula la recepcion de un evento y crea una notificacion en memoria | Productores G5, G6, G7, G8 en E2 |
-| `GET` | `/notifications` | Lista notificaciones con filtros y paginacion | G1, G11 |
-| `GET` | `/notifications/stats` | Retorna metricas agregadas calculadas desde memoria | G10 |
-| `PATCH` | `/notifications/:notificationId/read` | Marca una notificacion como leida en memoria | G1, G11 |
-| `POST` | `/notifications/subscriptions` | Registra una suscripcion Web Push simulada en memoria | G1 |
-
-## Eventos simulados aceptados
-
-- `OrderCreated`
-- `PaymentPending`
-- `PaymentApproved`
-- `PaymentRejected`
-- `StockRejected`
-- `ShipmentCreated`
-- `ShipmentPicking`
-- `ShipmentOutForDelivery`
-- `ShipmentDelivered`
-- `ShipmentFailed`
-
-## Contrato de evento simulado
-
-```json
-{
-  "eventId": "EVT-001",
-  "eventType": "OrderCreated",
-  "version": "1.0",
-  "occurredAt": "2026-06-01T10:00:00Z",
-  "producer": "order-service",
-  "correlationId": "corr-001",
-  "payload": {
-    "userId": "USR-01",
-    "orderId": "ORD-1001",
-    "totalAmount": 49990,
-    "currency": "CLP"
-  }
-}
-```
-
-## Reglas de validacion
-
-- `eventId` es obligatorio.
-- `eventType` debe ser valido.
-- `payload.userId` es obligatorio.
-- Si `eventId` ya fue procesado en la instancia activa, no se crea una notificacion duplicada.
-- `size` de paginacion tiene maximo 50.
-
-## Errores esperados
-
-| HTTP | Codigo | Caso |
-|---|---|---|
-| `400` | `INVALID_EVENT_TYPE` | `eventType` inexistente o no soportado |
-| `400` | `MISSING_EVENT_ID` | Falta `eventId` |
-| `400` | `INVALID_REQUEST` | Request incompleto o invalido |
-| `422` | `MISSING_USER_ID` | Falta `payload.userId` o `userId` |
-| `409` | `DUPLICATE_EVENT` | `eventId` ya procesado en memoria |
-| `404` | `NOTIFICATION_NOT_FOUND` | No existe la notificacion solicitada en memoria |
-
-Formato estandar:
-
-```json
-{
-  "timestamp": "2026-06-01T10:00:00.000Z",
-  "status": 409,
-  "code": "DUPLICATE_EVENT",
-  "message": "El evento 'EVT-001' ya fue procesado. No se crea notificacion duplicada.",
-  "correlationId": "corr-001"
-}
-```
+- `GET /`
+- `POST /notifications/test`
+- `GET /notifications`
+- `GET /notifications/stats`
+- `PATCH /notifications/:notificationId/read`
+- `POST /notifications/subscriptions`
 
 ## Ejecucion local
 
 ```bash
-git clone https://github.com/falonlon/notification-service.git
-cd notification-service
 npm install
-cp .env.example .env
+npm start
+```
+
+El servicio escucha por defecto en `http://localhost:8000/`.
+
+Para desarrollo:
+
+```bash
 npm run dev
 ```
 
-El servicio queda disponible en `http://localhost:8000`.
+## Variables de entorno
 
-## Pruebas rapidas con curl
+Crear un archivo `.env` local basado en `.env.example` cuando sea necesario.
+
+```env
+PORT=8000
+NODE_ENV=development
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_KEY=
+```
+
+El archivo `.env` real no se versiona.
+
+## Persistencia Supabase
+
+Ejecutar `supabase/schema.sql` en el SQL Editor del proyecto Supabase antes de iniciar el servicio.
+
+Configurar estas variables en Render y en `.env` local:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_KEY`
+
+`SUPABASE_URL` debe ser la URL base del proyecto, por ejemplo `https://<project-ref>.supabase.co`, sin `/rest/v1/`.
+
+El backend debe usar `SUPABASE_SERVICE_KEY` cuando este disponible. No subir `.env` ni credenciales reales al repositorio.
+
+## Evidencia local Supabase
+
+Se valido localmente que el servicio:
+
+- Carga variables de entorno desde `.env`.
+- Conecta correctamente con Supabase.
+- Persiste notificaciones en `notifications`.
+- Registra eventos procesados en `processed_events`.
+- Evita duplicados por `eventId`.
+- Marca notificaciones como leidas.
+- Genera estadisticas desde datos persistidos.
+- Registra subscriptions en `push_subscriptions`.
+
+La evidencia detallada esta en:
+
+`docs/test-evidence.md`
+
+La validacion pendiente en Render esta documentada en:
+
+`docs/render-validation.md`
+
+## Pruebas con curl
 
 Health check:
 
 ```bash
-curl http://localhost:8000/
+curl https://notification-service-i3bn.onrender.com/
 ```
 
-Crear evento `OrderCreated`:
+Crear notificacion mock:
 
 ```bash
-curl -X POST http://localhost:8000/notifications/test \
+curl -X POST https://notification-service-i3bn.onrender.com/notifications/test \
   -H "Content-Type: application/json" \
-  -d '{
-    "eventId": "EVT-001",
-    "eventType": "OrderCreated",
-    "version": "1.0",
-    "occurredAt": "2026-06-01T10:00:00Z",
-    "producer": "order-service",
-    "correlationId": "corr-001",
-    "payload": {
-      "userId": "USR-01",
-      "orderId": "ORD-1001",
-      "totalAmount": 49990,
-      "currency": "CLP"
-    }
-  }'
+  -d '{"eventId":"EVT-001","eventType":"OrderCreated","version":"1.0","occurredAt":"2026-06-01T10:00:00Z","producer":"order-service","correlationId":"corr-001","payload":{"userId":"USR-01","orderId":"ORD-1001","totalAmount":49990,"currency":"CLP"}}'
 ```
 
-Listar notificaciones por `userId`:
+Listar por usuario:
 
 ```bash
-curl "http://localhost:8000/notifications?userId=USR-01&page=1&size=10"
+curl "https://notification-service-i3bn.onrender.com/notifications?userId=USR-01&page=1&size=10"
 ```
 
-Probar idempotencia repitiendo el mismo `eventId`:
+Consultar estadisticas:
 
 ```bash
-curl -X POST http://localhost:8000/notifications/test \
-  -H "Content-Type: application/json" \
-  -d '{
-    "eventId": "EVT-001",
-    "eventType": "OrderCreated",
-    "producer": "order-service",
-    "correlationId": "corr-001",
-    "payload": {
-      "userId": "USR-01",
-      "orderId": "ORD-1001",
-      "totalAmount": 49990,
-      "currency": "CLP"
-    }
-  }'
+curl https://notification-service-i3bn.onrender.com/notifications/stats
 ```
 
 Marcar como leida:
 
 ```bash
-curl -X PATCH http://localhost:8000/notifications/NOTIF-0001/read
+curl -X PATCH https://notification-service-i3bn.onrender.com/notifications/NOTIF-1782787306600-pkrwzx/read
 ```
 
-Consultar stats:
+Registrar subscription mock:
 
 ```bash
-curl http://localhost:8000/notifications/stats
-```
-
-Registrar subscription simulada:
-
-```bash
-curl -X POST http://localhost:8000/notifications/subscriptions \
+curl -X POST https://notification-service-i3bn.onrender.com/notifications/subscriptions \
   -H "Content-Type: application/json" \
-  -d '{
-    "userId": "USR-01",
-    "platform": "web",
-    "subscription": {
-      "endpoint": "https://push.example.test/subscription",
-      "keys": {
-        "p256dh": "demo-key",
-        "auth": "demo-auth"
-      }
-    }
-  }'
+  -d '{"userId":"USR-01","platform":"web","subscription":{"endpoint":"https://example.com/mock-push-endpoint","keys":{"p256dh":"mock-p256dh","auth":"mock-auth"}}}'
 ```
-
-## Dependencias con otros grupos
-
-| Grupo | Rol en E2 |
-|---|---|
-| G5 Pedidos | Productor simulado de `OrderCreated` |
-| G6 Pagos | Productor simulado de `PaymentPending`, `PaymentApproved`, `PaymentRejected` |
-| G7 Inventario | Productor simulado de `StockRejected` |
-| G8 Despacho | Productor simulado de eventos `Shipment*` |
-| G10 Reporteria | Consumidor de `GET /notifications/stats` |
-| G11 ChatBot | Consumidor parcial de `GET /notifications` y `PATCH /read` |
-| G1 Frontend | Consumidor de `GET /notifications`, `PATCH /read` y `POST /subscriptions` |
-
-En Fase 2 la recepcion de eventos se simula mediante `POST /notifications/test`.
-
-## Modelo de datos objetivo
-
-En E2 el mock usa memoria. Las siguientes entidades son parte del modelo objetivo para persistencia en Fase 3 o fases posteriores, pero no existen actualmente en una base de datos:
-
-- `notifications`
-- `processed_events`
-- `dlq_events`
-- `push_subscriptions`
 
 ## Deploy Render
 
-| Campo | Valor |
-|---|---|
-| Runtime | Node.js 20 |
-| Build command | `npm install` |
-| Start command | `npm start` |
-| Branch | `main` |
-| URL publica | `https://notification-service-i3bn.onrender.com/` |
+URL publica:
+https://notification-service-i3bn.onrender.com/
+
+Runtime:
+Node.js 20
+
+Repo:
+https://github.com/falonlon/notification-service
+
+Branch:
+main
+
+Root directory:
+raiz del repositorio
+
+Build command:
+npm install
+
+Start command:
+npm start
+
+Variables configuradas en Render:
+SUPABASE_URL
+SUPABASE_ANON_KEY
+SUPABASE_SERVICE_KEY
+
+El archivo .env real no se versiona. Las variables productivas se configuran directamente en Render.
+
+## Pendiente Fase 3
+
+- Mantener endpoints actuales.
+- Mantener idempotencia por `eventId`.
+- Validar Render despues del redeploy con variables reales configuradas.
+- No usar AWS.
+- No implementar Web Push real.
+- No implementar DLQ real salvo que se exija despues.
+- Integracion real por bus/eventos si se exige despues.

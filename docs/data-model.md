@@ -1,55 +1,58 @@
-# Modelo de datos objetivo
+# Modelo de datos Supabase
 
-Este es un modelo objetivo para F3/F4. En Fase 2 el mock usa memoria.
-
-Las tablas siguientes no estan persistidas en E2. Sirven como diseno para la siguiente fase. `dlq_events` es un diseno objetivo y no representa una DLQ real implementada en esta entrega.
+Modelo implementado en Supabase para Fase 3. El servicio ya no depende de memoria local para notificaciones, eventos procesados ni subscriptions.
 
 ## notifications
 
-| Campo | Descripcion |
-|---|---|
-| `notification_id` | Identificador de la notificacion |
-| `event_id` | Identificador del evento origen |
-| `event_type` | Tipo de evento recibido |
-| `producer` | Servicio o grupo productor |
-| `correlation_id` | Identificador de trazabilidad |
-| `user_id` | Usuario destinatario |
-| `type` | Tipo interno de notificacion |
-| `title` | Titulo mostrado al usuario |
-| `message` | Mensaje generado |
-| `read` | Estado de lectura |
-| `push_sent` | Indica si se envio push en fases posteriores |
-| `created_at` | Fecha de creacion |
+Tabla para notificaciones visibles por usuario.
+
+Campos:
+
+- `notification_id`
+- `event_id`
+- `event_type`
+- `producer`
+- `correlation_id`
+- `user_id`
+- `type`
+- `title`
+- `message`
+- `read`
+- `push_sent`
+- `created_at`
+- `read_at`
+
+`event_id` tiene indice unico para evitar notificaciones duplicadas por evento.
 
 ## processed_events
 
-| Campo | Descripcion |
-|---|---|
-| `id` | Identificador interno |
-| `event_id` | Identificador unico del evento procesado |
-| `event_type` | Tipo de evento |
-| `producer` | Productor del evento |
-| `processed_at` | Fecha de procesamiento |
+Tabla para idempotencia por evento.
 
-## dlq_events
+Campos:
 
-| Campo | Descripcion |
-|---|---|
-| `id` | Identificador interno |
-| `event_id` | Identificador del evento fallido |
-| `raw_payload` | Payload original recibido |
-| `error_reason` | Motivo del error |
-| `attempts` | Cantidad de intentos proyectada |
-| `status` | Estado proyectado del evento |
-| `next_retry_at` | Fecha proyectada de proximo reintento |
-| `created_at` | Fecha de creacion |
+- `event_id`
+- `event_type`
+- `producer`
+- `correlation_id`
+- `processed_at`
+
+`event_id` es primary key. Si un evento ya existe, `POST /notifications/test` responde `409 DUPLICATE_EVENT`.
 
 ## push_subscriptions
 
-| Campo | Descripcion |
-|---|---|
-| `id` | Identificador interno |
-| `user_id` | Usuario asociado |
-| `platform` | Plataforma registrada |
-| `subscription` | Datos de suscripcion Web Push |
-| `created_at` | Fecha de registro |
+Tabla para guardar subscriptions por usuario.
+
+Campos:
+
+- `subscription_id`
+- `user_id`
+- `platform`
+- `subscription`
+- `created_at`
+- `updated_at`
+
+La tabla solo guarda subscriptions. No envia Web Push real en esta fase.
+
+## dlq_events
+
+`dlq_events` queda documentado solo como diseno futuro. No existe DLQ real implementada en la fase actual.

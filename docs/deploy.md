@@ -12,9 +12,9 @@ URL publica:
 - Runtime: Node.js 20
 - Framework HTTP: Express 4.18.2
 - Lenguaje: JavaScript
-- Repo: `https://github.com/bntkpp/fishmarket`
-- Branch: `feature/g9-notificaciones`
-- Root Directory: `services/notificaciones/notification-service`
+- Repo: `https://github.com/falonlon/notification-service`
+- Branch: `main`
+- Root Directory: raiz del repositorio
 - Build command: `npm install`
 - Start command: `npm start`
 
@@ -34,4 +34,4 @@ El archivo `.env` real no se versiona. Para desarrollo local se usa `.env.exampl
 
 ## Alcance actual
 
-El deploy debe ejecutarse desde el monorepo `fishmarket` usando el root directory del servicio G9. El servicio Node.js persiste datos en Supabase. Web Push real, DLQ real y workers reales siguen fuera de alcance.
+El deploy debe ejecutarse desde la raiz del repositorio standalone `notification-service`. El servicio Node.js persiste datos en Supabase. Web Push real, DLQ real y workers reales siguen fuera de alcance.

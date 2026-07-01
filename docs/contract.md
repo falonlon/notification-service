@@ -1,38 +1,29 @@
-# Contrato REST - Notification Service E2
+# Contrato HTTP - Grupo 9 Notificaciones
 
-Este contrato describe el mock funcional de Fase 2. Los datos se guardan en memoria y se reinician al reiniciar el proceso.
+Base local: `http://localhost:8000`
+
+Base cloud: `https://notification-service-i3bn.onrender.com`
 
 ## GET /
 
-Descripcion: health check y resumen del servicio.
+Retorna estado del servicio y lista de endpoints.
 
-Request: sin parametros.
-
-Response `200`:
+Respuesta `200`:
 
 ```json
 {
   "service": "G9 - Notification Service",
   "version": "1.0.0",
   "status": "running",
-  "endpoints": [
-    "GET  /",
-    "POST /notifications/test",
-    "GET  /notifications",
-    "GET  /notifications/stats",
-    "PATCH /notifications/:notificationId/read",
-    "POST /notifications/subscriptions"
-  ]
+  "endpoints": []
 }
 ```
 
-Errores posibles: no aplica en flujo normal.
-
 ## POST /notifications/test
 
-Descripcion: simula la recepcion de un evento de otro grupo y crea una notificacion.
+Recibe un evento de negocio y crea una notificacion persistida en Supabase.
 
-Request JSON:
+Request:
 
 ```json
 {
@@ -51,11 +42,11 @@ Request JSON:
 }
 ```
 
-Response `201`:
+Respuesta `201`:
 
 ```json
 {
-  "notificationId": "NOTIF-0001",
+  "notificationId": "NOTIF-1782787306600-pkrwzx",
   "eventId": "EVT-001",
   "eventType": "OrderCreated",
   "producer": "order-service",
@@ -69,156 +60,115 @@ Response `201`:
 }
 ```
 
-Errores posibles:
+Errores:
 
-- `400 MISSING_EVENT_ID`
-- `400 INVALID_EVENT_TYPE`
-- `422 MISSING_USER_ID`
-- `409 DUPLICATE_EVENT`
+- `400 MISSING_EVENT_ID`: falta `eventId`.
+- `400 INVALID_EVENT_TYPE`: `eventType` no soportado.
+- `422 MISSING_USER_ID`: falta `payload.userId`.
+- `409 DUPLICATE_EVENT`: `eventId` ya procesado.
+- `500 DATABASE_ERROR`: error al consultar o persistir en Supabase.
 
 ## GET /notifications
 
-Descripcion: lista notificaciones creadas en memoria.
+Lista notificaciones persistidas en Supabase con filtros opcionales.
 
 Query params:
 
-| Parametro | Tipo | Descripcion |
-|---|---|---|
-| `userId` | string | Filtra por usuario |
-| `eventType` | string | Filtra por evento de entrada |
-| `type` | string | Filtra por tipo interno de notificacion |
-| `producer` | string | Filtra por productor |
-| `read` | boolean | Filtra por estado de lectura |
-| `from` | ISO date | Fecha minima de creacion |
-| `to` | ISO date | Fecha maxima de creacion |
-| `page` | number | Pagina, por defecto `1` |
-| `size` | number | Tamano de pagina, maximo `50` |
+- `userId`
+- `eventType`
+- `type`
+- `producer`
+- `read`
+- `from`
+- `to`
+- `page`
+- `size`
 
-Response `200`:
+Respuesta `200`:
 
 ```json
 {
-  "data": [
-    {
-      "notificationId": "NOTIF-0001",
-      "eventId": "EVT-001",
-      "eventType": "OrderCreated",
-      "producer": "order-service",
-      "correlationId": "corr-001",
-      "userId": "USR-01",
-      "type": "ORDER_CREATED",
-      "title": "Pedido creado exitosamente",
-      "message": "Tu pedido #ORD-1001 por $49990 CLP fue recibido y esta siendo procesado.",
-      "read": false,
-      "createdAt": "2026-06-01T10:00:00.000Z"
-    }
-  ],
+  "data": [],
   "pagination": {
     "page": 1,
     "size": 10,
-    "total": 1,
-    "totalPages": 1
+    "total": 0,
+    "totalPages": 0
   },
-  "unreadCount": 1
+  "unreadCount": 0
 }
 ```
 
-Errores posibles: no aplica en flujo normal.
+Error:
+
+- `500 DATABASE_ERROR`: error al consultar Supabase.
 
 ## GET /notifications/stats
 
-Descripcion: retorna metricas basicas para reporteria.
+Retorna metricas agregadas desde las notificaciones persistidas en Supabase.
 
 Query params:
 
-| Parametro | Tipo | Descripcion |
-|---|---|---|
-| `from` | ISO date | Fecha minima de creacion |
-| `to` | ISO date | Fecha maxima de creacion |
+- `from`
+- `to`
 
-Response `200`:
+Respuesta `200`:
 
 ```json
 {
-  "total": 1,
-  "unread": 1,
+  "total": 0,
+  "unread": 0,
   "read": 0,
-  "byProducer": {
-    "order-service": 1
-  },
-  "byEventType": {
-    "OrderCreated": 1
-  },
+  "byProducer": {},
+  "byEventType": {},
   "generatedAt": "2026-06-01T10:00:00.000Z"
 }
 ```
 
-Errores posibles: no aplica en flujo normal.
-
 ## PATCH /notifications/:notificationId/read
 
-Descripcion: marca una notificacion como leida.
+Marca una notificacion como leida.
 
-Path params:
+Respuesta `200`: notificacion actualizada.
 
-| Parametro | Tipo | Descripcion |
-|---|---|---|
-| `notificationId` | string | Identificador de la notificacion |
+Error:
 
-Response `200`:
-
-```json
-{
-  "notificationId": "NOTIF-0001",
-  "eventId": "EVT-001",
-  "eventType": "OrderCreated",
-  "producer": "order-service",
-  "correlationId": "corr-001",
-  "userId": "USR-01",
-  "type": "ORDER_CREATED",
-  "title": "Pedido creado exitosamente",
-  "message": "Tu pedido #ORD-1001 por $49990 CLP fue recibido y esta siendo procesado.",
-  "read": true,
-  "createdAt": "2026-06-01T10:00:00.000Z"
-}
-```
-
-Errores posibles:
-
-- `404 NOTIFICATION_NOT_FOUND`
+- `404 NOTIFICATION_NOT_FOUND`: no existe la notificacion.
+- `500 DATABASE_ERROR`: error al consultar o actualizar Supabase.
 
 ## POST /notifications/subscriptions
 
-Descripcion: registra o reemplaza una suscripcion Web Push simulada para un usuario. En E2 no envia notificaciones push reales.
+Registra o reemplaza una subscription mock asociada a un usuario.
 
-Request JSON:
+Request:
 
 ```json
 {
   "userId": "USR-01",
   "platform": "web",
   "subscription": {
-    "endpoint": "https://push.example.test/subscription",
+    "endpoint": "https://example.com/mock-push-endpoint",
     "keys": {
-      "p256dh": "demo-key",
-      "auth": "demo-auth"
+      "p256dh": "mock-p256dh",
+      "auth": "mock-auth"
     }
   }
 }
 ```
 
-Response `201`:
+Respuesta `201`:
 
 ```json
 {
-  "subscriptionId": "SUB-0001",
+  "subscriptionId": "SUB-1782787485002-1s6gf2",
   "userId": "USR-01",
   "platform": "web",
   "createdAt": "2026-06-01T10:00:00.000Z"
 }
 ```
 
-Errores posibles:
+Errores:
 
-- `422 MISSING_USER_ID`
-- `400 INVALID_REQUEST`
+- `422 MISSING_USER_ID`: falta `userId`.
+- `400 INVALID_REQUEST`: falta `subscription`.
+- `500 DATABASE_ERROR`: error al consultar o guardar en Supabase.
