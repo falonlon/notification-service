@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Notification Service - Grupo 9 E2
   version: 1.0.0
-  description: Mock funcional de notificaciones para Mini Marketplace Cloud Entrega 2.
+  description: Servicio de notificaciones con persistencia Supabase para Mini Marketplace Cloud.
 servers:
   - url: http://localhost:8000
     description: Local
@@ -132,7 +132,7 @@ paths:
             format: date-time
       responses:
         "200":
-          description: Metricas del mock
+          description: Metricas persistidas en Supabase
           content:
             application/json:
               schema:
@@ -178,7 +178,7 @@ paths:
                 properties:
                   subscriptionId:
                     type: string
-                    example: SUB-0001
+                    example: SUB-1782787485002-1s6gf2
                   userId:
                     type: string
                     example: USR-01
@@ -267,7 +267,7 @@ components:
       properties:
         notificationId:
           type: string
-          example: NOTIF-0001
+          example: NOTIF-1782787306600-pkrwzx
         eventId:
           type: string
           example: EVT-001

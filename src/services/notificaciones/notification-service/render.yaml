@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: notification-service
-    env: node
-    plan: free
-    rootDir: services/notificaciones/notification-service
-    buildCommand: npm install
-    startCommand: npm start

@@ -4,7 +4,7 @@ Fecha de ejecucion local: 2026-06-30
 Ambiente: Local  
 Base URL: http://localhost:8000  
 Persistencia: Supabase  
-Servicio: services/notificaciones/notification-service
+Servicio: notification-service standalone
 
 ## Resumen
 
