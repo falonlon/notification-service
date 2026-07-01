@@ -1,0 +1,392 @@
+openapi: 3.0.3
+info:
+  title: Notification Service - Grupo 9 E2
+  version: 1.0.0
+  description: Servicio de notificaciones con persistencia Supabase para Mini Marketplace Cloud.
+servers:
+  - url: http://localhost:8000
+    description: Local
+  - url: https://notification-service-i3bn.onrender.com
+    description: Render
+paths:
+  /:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Servicio activo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  version:
+                    type: string
+                  status:
+                    type: string
+                  endpoints:
+                    type: array
+                    items:
+                      type: string
+  /notifications/test:
+    post:
+      summary: Simular evento y crear notificacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventRequest"
+      responses:
+        "201":
+          description: Notificacion creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "400":
+          description: Evento invalido o request incompleto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Evento duplicado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Falta userId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /notifications:
+    get:
+      summary: Listar notificaciones
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+        - in: query
+          name: eventType
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+        - in: query
+          name: producer
+          schema:
+            type: string
+        - in: query
+          name: read
+          schema:
+            type: boolean
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        "200":
+          description: Lista paginada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationsPage"
+  /notifications/stats:
+    get:
+      summary: Obtener metricas
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Metricas persistidas en Supabase
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsResponse"
+  /notifications/{notificationId}/read:
+    patch:
+      summary: Marcar notificacion como leida
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notificacion actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "404":
+          description: Notificacion no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /notifications/subscriptions:
+    post:
+      summary: Registrar suscripcion Web Push simulada
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionRequest"
+      responses:
+        "201":
+          description: Suscripcion registrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscriptionId:
+                    type: string
+                    example: SUB-1782787485002-1s6gf2
+                  userId:
+                    type: string
+                    example: USR-01
+                  platform:
+                    type: string
+                    example: web
+                  createdAt:
+                    type: string
+                    format: date-time
+        "400":
+          description: Request invalido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Falta userId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    EventRequest:
+      type: object
+      required:
+        - eventId
+        - eventType
+        - payload
+      properties:
+        eventId:
+          type: string
+          example: EVT-001
+        eventType:
+          type: string
+          enum:
+            - OrderCreated
+            - PaymentPending
+            - PaymentApproved
+            - PaymentRejected
+            - StockRejected
+            - ShipmentCreated
+            - ShipmentPicking
+            - ShipmentOutForDelivery
+            - ShipmentDelivered
+            - ShipmentFailed
+        version:
+          type: string
+          example: "1.0"
+        occurredAt:
+          type: string
+          format: date-time
+        producer:
+          type: string
+          example: order-service
+        correlationId:
+          type: string
+          nullable: true
+          example: corr-001
+        payload:
+          type: object
+          required:
+            - userId
+          additionalProperties: true
+          properties:
+            userId:
+              type: string
+              example: USR-01
+            orderId:
+              type: string
+              example: ORD-1001
+            totalAmount:
+              type: number
+              example: 49990
+            amount:
+              type: number
+              example: 49990
+            currency:
+              type: string
+              example: CLP
+            reason:
+              type: string
+              example: Fondos insuficientes
+    Notification:
+      type: object
+      properties:
+        notificationId:
+          type: string
+          example: NOTIF-1782787306600-pkrwzx
+        eventId:
+          type: string
+          example: EVT-001
+        eventType:
+          type: string
+          example: OrderCreated
+        producer:
+          type: string
+          example: order-service
+        correlationId:
+          type: string
+          nullable: true
+          example: corr-001
+        userId:
+          type: string
+          example: USR-01
+        type:
+          type: string
+          example: ORDER_CREATED
+        title:
+          type: string
+          example: Pedido creado exitosamente
+        message:
+          type: string
+          example: Tu pedido #ORD-1001 por $49990 CLP fue recibido y esta siendo procesado.
+        read:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+    NotificationsPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            size:
+              type: integer
+              example: 10
+            total:
+              type: integer
+              example: 1
+            totalPages:
+              type: integer
+              example: 1
+        unreadCount:
+          type: integer
+          example: 1
+    StatsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 1
+        unread:
+          type: integer
+          example: 1
+        read:
+          type: integer
+          example: 0
+        byProducer:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            order-service: 1
+        byEventType:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            OrderCreated: 1
+        generatedAt:
+          type: string
+          format: date-time
+    SubscriptionRequest:
+      type: object
+      required:
+        - userId
+        - subscription
+      properties:
+        userId:
+          type: string
+          example: USR-01
+        platform:
+          type: string
+          example: web
+        subscription:
+          type: object
+          additionalProperties: true
+          example:
+            endpoint: https://push.example.test/subscription
+            keys:
+              p256dh: demo-key
+              auth: demo-auth
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 409
+        code:
+          type: string
+          example: DUPLICATE_EVENT
+        message:
+          type: string
+          example: El evento 'EVT-001' ya fue procesado. No se crea notificacion duplicada.
+        correlationId:
+          type: string
+          nullable: true
+          example: corr-001
