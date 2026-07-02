@@ -1,7 +1,7 @@
 {
   "name": "notification-service",
   "version": "1.0.0",
-  "description": "Mock funcional de notificaciones para Mini Marketplace Cloud E2",
+  "description": "Servicio cloud de notificaciones con persistencia Supabase",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",

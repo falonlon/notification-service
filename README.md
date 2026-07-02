@@ -24,7 +24,7 @@ Supabase almacena `notifications`, `processed_events` y `push_subscriptions`. La
 
 Este servicio usa Node.js 20, JavaScript y Express 4.18.2.
 
-Aunque el README raiz del monorepo define una estructura estandar Node.js + TypeScript para nuevos servicios, G9 mantiene esta implementacion JavaScript porque el mock ya se encuentra desplegado y funcionando en Render.
+G9 mantiene esta implementacion JavaScript porque el servicio ya se encuentra desplegado y funcionando en Render.
 
 Esta decision es acotada al servicio de notificaciones y no cambia el contrato HTTP expuesto a los demas grupos.
 
