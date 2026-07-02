@@ -130,7 +130,7 @@ class G9DemoApp(App):
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         index = event.list_view.index or 0
         self.selected_option = 0 if index == 12 else index + 1
-        self.handle_selected_option()
+        self.handle_selected_option(send=True)
 
     def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
         index = event.list_view.index or 0
@@ -138,24 +138,38 @@ class G9DemoApp(App):
         if self.selected_option not in {0, 11, 12}:
             self.handle_selected_option()
 
-    def handle_selected_option(self) -> None:
+    def on_key(self, event) -> None:
+        if event.key in {"enter", "ctrl+enter"} and self.editing:
+            event.prevent_default()
+            event.stop()
+            self.action_send_request()
+
+    def handle_selected_option(self, send: bool = False) -> None:
         if self.selected_option == 0:
             self.exit()
             return
         if self.selected_option == 7:
             self.prepare_idempotency_request()
+            if send:
+                self.action_send_request()
             return
         if self.selected_option == 8:
             self.prepare_mark_read_request()
+            if send:
+                self.action_send_request()
             return
         if self.selected_option == 11:
-            self.action_run_full_demo()
+            if send:
+                self.action_run_full_demo()
             return
         if self.selected_option == 12:
-            self.action_export_evidence()
+            if send:
+                self.action_export_evidence()
             return
         self.current_request = template_for(self.selected_option, self.last_user_id)
         self.refresh_request_panel()
+        if send:
+            self.action_send_request()
 
     def refresh_request_panel(self) -> None:
         meta = self.query_one("#request-meta", Static)
