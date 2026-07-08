@@ -439,6 +439,10 @@ app.get('/', (req, res) => {
   });
 });
 
+// Iniciar listeners de RabbitMQ
+const { connectG5 } = require('./listeners/g5.listener');
+connectG5();
+
 app.listen(PORT, () => {
   console.log(`Notification Service corriendo en http://localhost:${PORT}`);
   console.log('   POST  /notifications/test');
